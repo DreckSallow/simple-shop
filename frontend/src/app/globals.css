@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utlities {
+  .web-main {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 70px 1fr 100px;
+  }
+
+  @media screen(sm) {
+    .web-main>nav {
+      background-color: red
+    }
+  }
+
+  .flex-rw {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+@layer components {
+  .btn-pry {
+    @apply rounded-lg px-3 py-1 bg-amber-500 cursor-pointer text-white;
+  }
+
+  .search-out {
+    @apply rounded-full px-2 py-1 border border-gray-300;
+  }
+}

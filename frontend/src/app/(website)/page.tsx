@@ -1,8 +1,14 @@
+import Carousel from "@/components/carousel";
+
 export default function Home() {
+  const images = [
+    "https://placehold.co/1200x500/png",
+    "https://placehold.co/1200x500/png",
+    "https://placehold.co/1200x500/png"
+  ]
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className='text-4xl font-semibold text-blue-400'>Simple Shop</h1>
-      <button>Click me</button>
-    </main>
+    <section className="text-white">
+      <Carousel className="web-page" images={images} />
+    </section>
   )
 }

@@ -20,7 +20,7 @@ function NavBar() {
         <SearchIcon />
         <input type="search" placeholder="Buscar" className="ml-2 outline-none" />
       </div>
-      <ul className="flex-rw justify-between gap-3">
+      <ul className="flex-rw justify-between gap-4">
         <li className="cursor-pointer rounded-full p-2 border border-gray-300">
           <CartIcon />
         </li>

@@ -17,7 +17,7 @@ export default function Carousel({ className, images }: Props) {
     if (si == "add") {
       setIndex(index + 1 >= images.length ? 0 : index + 1);
     } else if (si == "sub") {
-      setIndex(index - 1 <= 0 ? (images.length - 1) : index - 1);
+      setIndex(index - 1 < 0 ? (images.length - 1) : index - 1);
     } else {
       const inRange = si < (images.length) && si >= 0;
       if (inRange) setIndex(si)

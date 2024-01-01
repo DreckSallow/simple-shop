@@ -8,14 +8,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("db_connection"));
+    var connection = builder.Configuration.GetConnectionString("db_connection");
+    opt.UseSqlServer(connection);
+});
 
-}); // Change this line
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// The below code will migrate inside the code.
+// using (var scope = app.Services.CreateScope())
+// {
+//     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+//     dbContext.Database.Migrate();
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -14,6 +14,15 @@ Attach backend proyect references, and documentation relate to the tools used he
  sqlcmd -S localhost:1432 -U SA -P Dreck@sallow.dikson
 ```
 
+```sh
+  # Create a new migration
+  dotnet ef migrations add {name} --context ApplicationContext 
 
+  # Execute a migration
+  dotnet ef database update --context ApplicationContext
+ 
+```
+
+- EF: https://learn.microsoft.com/en-us/training/modules/persist-data-ef-core/
 - Getting started: https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16&pivots=cs1-powershell
 

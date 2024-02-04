@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using backend.Models;
 namespace backend.Controllers;
@@ -17,6 +18,12 @@ public class CategoryController : ControllerBase
     public CategoryController(ApplicationContext context)
     {
         this._context = context;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult> GetAll()
+    {
+        return Ok(await _context.Categories.ToListAsync());
     }
 
     [HttpPost]

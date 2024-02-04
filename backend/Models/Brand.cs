@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace backend.Models;
 
@@ -7,9 +7,8 @@ namespace backend.Models;
 public class Brand
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string Name { get; set; } = null!;
-
+    [JsonIgnore]
     public virtual ICollection<Product> Products { get; set; } = null!;
 }

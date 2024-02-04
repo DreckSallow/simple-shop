@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models;
 
-public enum UserRole{
+public enum UserRole
+{
     Client = 0,
     Admin = 1
 }
@@ -11,7 +12,6 @@ public enum UserRole{
 public class User
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }

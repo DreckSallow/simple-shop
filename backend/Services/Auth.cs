@@ -1,4 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using backend.Models;
 namespace backend.Services;
@@ -24,10 +26,36 @@ public class Auth : IAuth
         }
         this.SecretKey = secretKey;
     }
-    public string generateToken(User user)
+    public string GenerateToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(this.SecretKey);
-        return "";
+        var tokenDescriptor = new SecurityTokenDescriptor()
+        {
+            Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
+            Expires = DateTime.UtcNow.AddDays(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+    public async Task<int?> ValidateToken(string? token)
+    {
+        if (token == null) return null;
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(this.SecretKey);
+        try
+        {
+            await tokenHandler.ValidateTokenAsync(token, new TokenValidationParameters()
+            {
+                //TODO: Check the parameters
+
+            });
+            return 1;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

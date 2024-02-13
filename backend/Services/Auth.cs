@@ -5,20 +5,17 @@ using System.Text;
 using backend.Models;
 namespace backend.Services;
 
-
-
-public interface IAuth
+public interface ITokenService
 {
-    string generateToken(User user);
+    string GenerateToken(User user);
 }
 
 
-public class Auth : IAuth
+public class TokenService : ITokenService
 {
     private string? SecretKey = null;
     private static readonly TimeSpan TokenTime = TimeSpan.FromDays(1);
-    // private get Secret =()=>
-    public Auth(string secretKey)
+    public TokenService(string secretKey)
     {
         if (secretKey == null)
         {
@@ -26,32 +23,43 @@ public class Auth : IAuth
         }
         this.SecretKey = secretKey;
     }
+    private ClaimsIdentity ClaimsList(User user)
+    {
+        return new ClaimsIdentity(new[] {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+         });
+    }
     public string GenerateToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(this.SecretKey);
+        var key = Encoding.UTF8.GetBytes(this.SecretKey!);
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
+            Subject = this.ClaimsList(user),
             Expires = DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
-    public async Task<int?> ValidateToken(string? token)
+    public int? ValidateToken(string? token)
     {
         if (token == null) return null;
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(this.SecretKey);
+        var key = Encoding.UTF8.GetBytes(this.SecretKey!);
         try
         {
-            await tokenHandler.ValidateTokenAsync(token, new TokenValidationParameters()
+            tokenHandler.ValidateToken(token, new TokenValidationParameters()
             {
-                //TODO: Check the parameters
-
-            });
-            return 1;
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero,
+            }, out SecurityToken validatedToken);
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            return int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
         }
         catch
         {

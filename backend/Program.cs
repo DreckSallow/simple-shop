@@ -3,14 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using backend.Models;
+using Microsoft.OpenApi.Models;
 using backend.Data;
 using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<RouteOptions>(o =>
+{
+    o.LowercaseUrls = true;
+    o.LowercaseQueryStrings = false;
+});
 
 builder.Services.AddControllers();
+
 builder.Services.AddDbContext<ApplicationContext>(opt =>
 {
     var connection = builder.Configuration.GetConnectionString("db_connection");
@@ -29,7 +36,7 @@ builder.Services.AddAuthentication(options =>
     {
         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidAudience = builder.Configuration["JwtSettings:Audiencie"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
@@ -41,9 +48,32 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo() { Title = "SimpleShop backend", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement(){
+       {
+        new OpenApiSecurityScheme(){
+            Reference= new OpenApiReference(){
+                Type=ReferenceType.SecurityScheme,
+                Id="Bearer",
+            }
+        },
+        new string[]{}
+      }
+    });
+});
 
-builder.Services.AddScoped<IAuth, Auth>(c => new Auth(builder.Configuration["JwtSettings:Key"]));
+builder.Services.AddScoped<ITokenService, TokenService>(c => new TokenService(builder.Configuration["JwtSettings:Key"]!));
 
 var app = builder.Build();
 

@@ -1,10 +1,11 @@
-using System.Text;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using backend.Models;
 using Microsoft.OpenApi.Models;
+using System.Text;
+
 using backend.Data;
+using backend.Models;
 using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,14 +25,9 @@ builder.Services.AddDbContext<ApplicationContext>(opt =>
     opt.UseSqlServer(connection);
 });
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}
-).AddJwtBearer(x =>
-{
+    x.SaveToken = true;
     x.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
@@ -41,13 +37,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
-        // IssuerSigningKey= new SymmetricSecurityKey(Encoding)
     };
 });
 
-builder.Services.AddAuthorization();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo() { Title = "SimpleShop backend", Version = "v1" });
@@ -66,14 +58,21 @@ builder.Services.AddSwaggerGen(option =>
             Reference= new OpenApiReference(){
                 Type=ReferenceType.SecurityScheme,
                 Id="Bearer",
-            }
+            },
+            Name="Bearer",
+            In=ParameterLocation.Header
         },
         new string[]{}
       }
     });
 });
 
-builder.Services.AddScoped<ITokenService, TokenService>(c => new TokenService(builder.Configuration["JwtSettings:Key"]!));
+builder.Services.AddScoped<ITokenService, TokenService>(c => new TokenService(builder.Configuration));
+
+builder.Services.AddAuthorization();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+
 
 var app = builder.Build();
 

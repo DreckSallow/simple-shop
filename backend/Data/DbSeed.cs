@@ -158,6 +158,14 @@ public static class DbSeed
                   },
         };
         appContext.Categories.AddRange(houseCategory, phonesCategory, clothingCategory);
+        appContext.Users.Add(new User()
+        {
+            FirstName = "Dikson",
+            LastName = "Aranda",
+            Email = "dikson@test.com",
+            Password = "dikson-4076",
+            Role = UserRole.Admin,
+        });
         appContext.SaveChanges();
     }
 }

@@ -14,34 +14,33 @@ public interface ITokenService
 public class TokenService : ITokenService
 {
     private string? SecretKey = null;
+    private string? Issuer = null;
+    private string? Audience = null;
     private static readonly TimeSpan TokenTime = TimeSpan.FromDays(1);
-    public TokenService(string secretKey)
+    public TokenService(ConfigurationManager config)
     {
+        var secretKey = config["JwtSettings:Key"];
         if (secretKey == null)
         {
             throw new ArgumentNullException(nameof(secretKey), "The secret key cannot be null");
         }
         this.SecretKey = secretKey;
+        this.Issuer = config["JwtSettings:Issuer"];
+        this.Audience = config["JwtSettings:Audiencie"];
     }
-    private ClaimsIdentity ClaimsList(User user)
+    private Claim[] ClaimsList(User user)
     {
-        return new ClaimsIdentity(new[] {
+        return new[] {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Role, user.Role.ToString()),
-         });
+         };
     }
     public string GenerateToken(User user)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(this.SecretKey!);
-        var tokenDescriptor = new SecurityTokenDescriptor()
-        {
-            Subject = this.ClaimsList(user),
-            Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-        };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.SecretKey!));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+        var token = new JwtSecurityToken(this.Issuer, this.Audience, this.ClaimsList(user), expires: DateTime.Now.AddHours(5), signingCredentials: credentials);
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
     public int? ValidateToken(string? token)
     {

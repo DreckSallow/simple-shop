@@ -1,3 +1,4 @@
+using backend.Services;
 using backend.Models;
 
 namespace backend.Data;
@@ -163,7 +164,7 @@ public static class DbSeed
             FirstName = "Dikson",
             LastName = "Aranda",
             Email = "dikson@test.com",
-            Password = "dikson-4076",
+            Password = new UserPasswordHasher().Hash("dikson-4076"),
             Role = UserRole.Admin,
         });
         appContext.SaveChanges();

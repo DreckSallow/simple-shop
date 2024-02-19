@@ -7,6 +7,7 @@ using System.Text;
 using backend.Data;
 using backend.Models;
 using backend.Services;
+using backend.Core.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,9 @@ builder.Services.AddDbContext<ApplicationContext>(opt =>
     var connection = builder.Configuration.GetConnectionString("db_connection");
     opt.UseSqlServer(connection);
 });
+
+
+builder.Logging.AddConsole();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
 {
@@ -68,6 +72,7 @@ builder.Services.AddSwaggerGen(option =>
 });
 
 builder.Services.AddScoped<ITokenService, TokenService>(c => new TokenService(builder.Configuration));
+builder.Services.AddScoped<IUserPasswordHasher, UserPasswordHasher>();
 
 builder.Services.AddAuthorization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -81,7 +86,6 @@ if (app.Environment.IsDevelopment())
 {
     using (var scope = app.Services.CreateScope())
     {
-        Console.WriteLine("Execute db");
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
         dbContext.Database.EnsureCreated();
         DbSeed.Init(dbContext);

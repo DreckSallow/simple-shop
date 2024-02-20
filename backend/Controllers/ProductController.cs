@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using backend.Models;
@@ -31,8 +32,8 @@ public class ProductController : ControllerBase
     {
         this._context = context;
     }
-
     [HttpPost]
+    [Authorize(Roles="Admin")]
     public async Task<ActionResult> CreateProduct(ProductToCreate product)
     {
         if (product.Name.Length == 0 || product.Description.Length == 0 || product.Price < 0)

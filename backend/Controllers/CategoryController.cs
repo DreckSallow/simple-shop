@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using backend.Models;
@@ -27,6 +28,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles="Admin")]
     public async Task<ActionResult> CreateCategory(CategoryToCreate ct)
     {
         if (ct.Name.Length == 0) return BadRequest("The name cannot be empty");

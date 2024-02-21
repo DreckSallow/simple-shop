@@ -33,7 +33,7 @@ public class ProductController : ControllerBase
         this._context = context;
     }
     [HttpPost]
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> CreateProduct(ProductToCreate product)
     {
         if (product.Name.Length == 0 || product.Description.Length == 0 || product.Price < 0)
@@ -84,4 +84,13 @@ public class ProductController : ControllerBase
             totalPages = Math.Ceiling(_context.Products.Count() / (decimal)pageSize)
         });
     }
+    [HttpGet("populars")]
+    public async Task<ActionResult> Features()
+    {
+        // TODO: use a cronjob to get populars products;
+        // var products = await _context.FeaturedProducts.ToListAsync();
+        var products = await _context.Products.Take(5).ToListAsync();
+        return Ok(products);
+    }
+
 }

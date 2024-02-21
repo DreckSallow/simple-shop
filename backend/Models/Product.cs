@@ -16,11 +16,11 @@ public class Product
     public int CategoryId { get; set; }
 
     [ForeignKey("CategoryId")]
-    public virtual Category Category { get; set; }
+    public Category Category { get; set; }
 
     [JsonIgnore]
     public int BrandId { get; set; }
 
     [ForeignKey("BrandId")]
-    public virtual Brand Brand { get; set; }
+    public Brand Brand { get; set; }
 }

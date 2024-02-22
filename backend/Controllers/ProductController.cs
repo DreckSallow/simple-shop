@@ -71,7 +71,7 @@ public class ProductController : ControllerBase
                 product.Brand.Name.Contains(brand ?? "") &&
                 product.Category.Name.Contains(category ?? "") &&
                 (maxPrice.HasValue ? product.Price <= (maxPrice) : true)
-            )
+            ).Include(p => p.Brand)
             .OrderBy(p => p.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -89,7 +89,7 @@ public class ProductController : ControllerBase
     {
         // TODO: use a cronjob to get populars products;
         // var products = await _context.FeaturedProducts.ToListAsync();
-        var products = await _context.Products.Take(5).ToListAsync();
+        var products = await _context.Products.Take(5).Include(p => p.Brand).ToListAsync();
         return Ok(products);
     }
 
